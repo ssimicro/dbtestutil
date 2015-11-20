@@ -1,0 +1,12 @@
+{
+	"db": {
+		"test": {
+			"mysql_local_port": 3007,
+			"mysqld": "/usr/sbin/mysqld",
+			"mysql": "/usr/bin/mysql",
+			"mysql_base_dir": "/usr",
+			"mysql_install_db": "/usr/bin/mysql_install_db",
+			"sql_file": "test.sql"
+		}
+	}
+}

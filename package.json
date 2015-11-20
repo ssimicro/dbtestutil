@@ -1,0 +1,65 @@
+{
+  "name": "dbtestutil",
+  "version": "0.0.0",
+  "description": "Launches an isolated instance of MySQL",
+  "main": "DbTestUtil.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pretest": "jshint *.js ; cp -n test/db.conf.example test/db.conf || true",
+    "test": "mocha -R spec test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tcort/dbtestutil"
+  },
+  "author": "SSi Micro Ltd <propellorheads@ssimicro.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tcort/dbtestutil/issues"
+  },
+  "homepage": "https://github.com/tcort/dbtestutil",
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "mkdirp": "^0.5.0",
+    "rimraf": "^2.4.4",
+    "ssi-logger": "^2.0.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jshint": "^2.8.0",
+    "mocha": "^2.1.0",
+    "mysql": "^2.9.0",
+    "nconf": "^0.8.2"
+  },
+  "jshintConfig": {
+    "bitwise": true,
+    "curly": true,
+    "eqeqeq": true,
+    "forin": true,
+    "freeze": true,
+    "globalstrict": true,
+    "immed": true,
+    "indent": 4,
+    "moz": true,
+    "newcap": true,
+    "noarg": true,
+    "node": true,
+    "noempty": true,
+    "nonew": true,
+    "trailing": true,
+    "undef": true,
+    "smarttabs": true,
+    "strict": true,
+    "validthis": true,
+    "globals": {
+      "describe": false,
+      "it": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false
+    }
+  }
+}
