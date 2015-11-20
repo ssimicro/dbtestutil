@@ -98,8 +98,8 @@ module.exports = function DbTestUtil(options) {
         run([
             { command: fmt('${mysql_install_db} --datadir=${mysql_data_dir} --basedir=${mysql_base_dir} --user=${system_user} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options)                                  },   // install DB
             { command: fmt('${mysqld} --datadir=${mysql_data_dir} --port=${mysql_local_port} --socket=${mysql_socket} ${mysqld_args} --user=${system_user}',           options), daemon: true                    },   // start mysqld
-            { command: fmt('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --port=${mysql_local_port} --host=${mysql_host} ${mysql_dash_u} mysql',                 options)                                  },   // load timezones
-            { command: fmt('${mysql} --port=${mysql_local_port} --host=${mysql_host} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1',            options), skip: options.sql_file === null }    // execute user supplied SQL
+            { command: fmt('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql',                                        options)                                  },   // load timezones
+            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1',                                   options), skip: options.sql_file === null }    // execute user supplied SQL
         ], callback);
     };
 
@@ -116,7 +116,7 @@ module.exports = function DbTestUtil(options) {
         log('DEBUG', 'Stopping local MySQL Instance');
 
         run([
-            { command: fmt('${mysql} --port=${mysql_local_port} --host=${mysql_host} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options), skip: options.sql_file === null }       // execute user supplied SQL
+            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options), skip: options.sql_file === null }       // execute user supplied SQL
         ], function (err) {
             _.each(daemons, function (daemon) {
                 log('DEBUG', 'Sending SIGTERM to pid=%s', daemon.pid);

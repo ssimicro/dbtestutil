@@ -142,6 +142,12 @@ it to print debugging information to the console, install `ssi-logger` and add t
     var log = require('ssi-logger');
     process.on('log', log.consoleTransport());
 
+## Testing
+
+There is an automated test suite:
+
+    npm test
+
 ## License
 
 ```
