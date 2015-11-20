@@ -10,5 +10,6 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
+    - mysql-client
     - mysql-server
 sudo: false
