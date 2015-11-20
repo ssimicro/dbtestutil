@@ -148,6 +148,8 @@ There is an automated test suite:
 
     npm test
 
+It's known to pass on Mac OS X, Linux, and FreeBSD. Please report any failures via [issues](https://github.com/tcort/dbtestutil/issues).
+
 ## License
 
 ```
