@@ -12,13 +12,7 @@ var DbTestUtil = require('../');
 process.on('log', log.consoleTransport());
 
 // load the database configuration.
-var options = nconf.argv().env().file({ file: path.join(__dirname, 'db.conf') }).defaults({
-    db: {
-        test: {
-            mysql_settle_delay: 10000
-        }
-    }
-}).get();
+var options = nconf.argv().env().file({ file: path.join(__dirname, 'db.conf') }).get();
 
 var dbTestUtil = new DbTestUtil(options.db.test);
 

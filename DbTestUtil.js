@@ -96,10 +96,10 @@ module.exports = function DbTestUtil(options) {
         mkdirp.sync(options.mysql_data_dir);
 
         run([
-            { command: fmt('${mysql_install_db} --datadir=${mysql_data_dir} --basedir=${mysql_base_dir} --user=${system_user} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options)                                  },   // install DB
-            { command: fmt('${mysqld} --datadir=${mysql_data_dir} --port=${mysql_local_port} --socket=${mysql_socket} ${mysqld_args} --user=${system_user}',           options), daemon: true                    },   // start mysqld
-            { command: fmt('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql',                                        options)                                  },   // load timezones
-            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1',                                   options), skip: options.sql_file === null }    // execute user supplied SQL
+            { command: fmt('${mysql_install_db} --datadir=${mysql_data_dir} --basedir=${mysql_base_dir} --user=${system_user} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options) },   // install DB
+            { command: fmt('${mysqld} --datadir=${mysql_data_dir} --port=${mysql_local_port} --socket=${mysql_socket} ${mysqld_args} --pid-file=${mysql_data_dir}/mysqld.pid --user=${system_user}', options), daemon: true },   // start mysqld
+            { command: fmt('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql', options) },   // load timezones
+            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options), skip: options.sql_file === null }    // execute user supplied SQL
         ], callback);
     };
 
