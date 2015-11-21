@@ -59,13 +59,13 @@ module.exports = function DbTestUtil(options) {
         p.on('exit', function (err) {
             process.removeListener('exit', down);
             if (!cmd.daemon) {
-                process.nextTick(function () {
+                setTimeout(function () {
                     if (err) {
                         callback(err);
                         return;
                     }
                     run(cmds, callback);
-                });
+                }, 1000);
             } else {
                 daemons = _.without(daemons, p);
             }
