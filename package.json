@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/tcort/dbtestutil"
+    "url": "git://github.com/ssimicro/dbtestutil"
   },
   "author": "SSi Micro Ltd <propellorheads@ssimicro.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tcort/dbtestutil/issues"
+    "url": "https://github.com/ssimicro/dbtestutil/issues"
   },
-  "homepage": "https://github.com/tcort/dbtestutil",
+  "homepage": "https://github.com/ssimicro/dbtestutil",
   "dependencies": {
     "lodash": "^3.10.1",
     "mkdirp": "^0.5.0",
