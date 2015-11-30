@@ -33,19 +33,19 @@ The `options` parameter can contain any of the following (defaults listed below)
 Here are the default values:
 
     {
-        mysql_host: '127.0.0.1',
-        mysql_local_port: 3307,
-        mysql_socket: '/tmp/mysqltest.sock',
-        mysqld: 'mysqld',
-        mysql: 'mysql',
-        mysql_tzinfo_to_sql: 'mysql_tzinfo_to_sql',
-        mysql_install_db: 'mysql_install_db',
-        mysql_base_dir: '/usr/local',
-        mysql_data_dir: './mysql-local',
-        zoneinfo_dir: '/usr/share/zoneinfo',
-        mysql_settle_delay: 3000,
-        mysql_create_grant_tables: false,
-        mysqld_args: ''
+        "mysql_host": "127.0.0.1",
+        "mysql_local_port": 3307,
+        "mysql_socket": "/tmp/mysqltest.sock",
+        "mysqld": "mysqld",
+        "mysql": "mysql",
+        "mysql_tzinfo_to_sql": "mysql_tzinfo_to_sql",
+        "mysql_install_db": "mysql_install_db",
+        "mysql_base_dir": "/usr/local",
+        "mysql_data_dir": "./mysql-local",
+        "zoneinfo_dir": "/usr/share/zoneinfo",
+        "mysql_settle_delay": 3000,
+        "mysql_create_grant_tables": false,
+        "mysqld_args": ""
     }
 
 ### dbTestUtil.startLocalMySql([sql_file,] callback)
