@@ -40,7 +40,9 @@ module.exports = function DbTestUtil(options) {
 
     if (!options.mysql_create_grant_tables) {
         options.mysqld_args += ' --skip-grant-tables ';
-    }    
+    }
+
+    log('DEBUG', 'DbTestUtil Configured', options);
 
     function run(cmds, callback) {
         var cmd = cmds.shift();
