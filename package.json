@@ -21,17 +21,18 @@
   },
   "homepage": "https://github.com/ssimicro/dbtestutil",
   "dependencies": {
-    "lodash": "^3.10.1",
-    "mkdirp": "^0.5.0",
-    "rimraf": "^2.4.4",
-    "ssi-logger": "^2.0.0"
+    "fmtr": "^1.0.3",
+    "lodash": "^4.13.1",
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.5.2",
+    "ssi-logger": "^2.5.0"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "jshint": "^2.8.0",
-    "mocha": "^2.1.0",
-    "mysql": "^2.9.0",
-    "nconf": "^0.8.2"
+    "jshint": "^2.9.2",
+    "mocha": "^2.5.3",
+    "mysql": "^2.11.1",
+    "nconf": "^0.8.4"
   },
   "jshintConfig": {
     "bitwise": true,

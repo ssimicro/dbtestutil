@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var exec = require('child_process').exec;
+var fmtr = require('fmtr');
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
@@ -13,19 +14,13 @@ module.exports = function DbTestUtil(options) {
         return new DbTestUtil(options);
     }
 
-    // awesome string formatting: fmt('${some_property}', someObject);
-    var fmt = function fmt(str, obj) {
-        return _.template(str, { interpolate: /\$\{([^\}]+)\}/gm })(obj);
-    };
-
     var daemons = []; // daemon process list (used to kill them when killLocalMySql() is called)
 
-    options = _.defaults({}, options, {
+    options = _.defaultsDeep({}, options, {
         mysql_local_port: 3307,                 // default for production is 3306
         mysqld: 'mysqld',
         mysql: 'mysql',
         mysql_tzinfo_to_sql: 'mysql_tzinfo_to_sql',
-        mysql_install_db: 'mysql_install_db',
         mysql_base_dir: '/usr/local',
         mysql_data_dir: './mysql-local',
         mysql_settle_delay: 3000,
@@ -98,10 +93,10 @@ module.exports = function DbTestUtil(options) {
         mkdirp.sync(options.mysql_data_dir);
 
         run([
-            { command: fmt('${mysql_install_db} --datadir=${mysql_data_dir} --basedir=${mysql_base_dir} --user=${system_user} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options) },   // install DB
-            { command: fmt('${mysqld} --datadir=${mysql_data_dir} --port=${mysql_local_port} --socket=${mysql_socket} ${mysqld_args} --pid-file=${mysql_data_dir}/mysqld.pid --user=${system_user}', options), daemon: true },   // start mysqld
-            { command: fmt('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql', options) },   // load timezones
-            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options), skip: options.sql_file === null }    // execute user supplied SQL
+            { command: fmtr('${mysqld} --initialize-insecure --datadir=${mysql_data_dir} --basedir=${mysql_base_dir} --user=${system_user} >> ${mysql_data_dir}/../dbtestutil.out 2>&1', options) },   // install DB
+            { command: fmtr('${mysqld} --datadir=${mysql_data_dir} --port=${mysql_local_port} --socket=${mysql_socket} ${mysqld_args} --pid-file=${mysql_data_dir}/mysqld.pid --user=${system_user}', options), daemon: true },   // start mysqld
+            { command: fmtr('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql', options) },   // load timezones
+            { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/../dbtestutil.out 2>&1', options), skip: options.sql_file === null }    // execute user supplied SQL
         ], callback);
     };
 
@@ -118,9 +113,9 @@ module.exports = function DbTestUtil(options) {
         log('DEBUG', 'Stopping local MySQL Instance');
 
         run([
-            { command: fmt('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbSqlCmd.out 2>&1', options), skip: options.sql_file === null }       // execute user supplied SQL
+            { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/../dbtestutil.out 2>&1', options), skip: options.sql_file === null }       // execute user supplied SQL
         ], function (err) {
-            _.each(daemons, function (daemon) {
+            _.forEach(daemons, function (daemon) {
                 log('DEBUG', 'Sending SIGTERM to pid=%s', daemon.pid);
                 daemon.kill('SIGTERM');
             });

@@ -1,3 +1,4 @@
 node_modules/
 .idea
 mysql-local
+dbtestutil.out

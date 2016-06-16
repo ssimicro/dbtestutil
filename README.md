@@ -8,6 +8,10 @@ and it can execute a SQL script on shutdown to dump data to a file for further a
 
     npm install --save-dev dbtestutil
 
+## Requirements
+
+Versions of `dbtestutil` from `3.0.0` support MySQL 5.7 and later. Versions of `dbtestutil` below `3.0.0` support MySQL 5.6.
+
 ## API
 
 ### new DbTestUtil(options)
@@ -22,7 +26,6 @@ The `options` parameter can contain any of the following (defaults listed below)
 * `mysqld`: path to `mysqld` binary
 * `mysql`: path to `mysql` binary
 * `mysql_tzinfo_to_sql`: path to `mysql_tzinfo_to_sql` binary
-* `mysql_install_db`: path to `mysql_install_db` binary
 * `mysql_base_dir`: MySQL's `basedir`
 * `mysql_data_dir`: where to put the databases on the file system
 * `zoneinfo_dir`: location of timezone files
@@ -39,7 +42,6 @@ Here are the default values:
         "mysqld": "mysqld",
         "mysql": "mysql",
         "mysql_tzinfo_to_sql": "mysql_tzinfo_to_sql",
-        "mysql_install_db": "mysql_install_db",
         "mysql_base_dir": "/usr/local",
         "mysql_data_dir": "./mysql-local",
         "zoneinfo_dir": "/usr/share/zoneinfo",
@@ -153,7 +155,7 @@ It's known to pass on Mac OS X, Linux, and FreeBSD. Please report any failures v
 ## License
 
 ```
-Copyright (C) 2015 SSi Micro, Ltd. and other contributors.
+Copyright (C) 2015, 2016 SSi Micro, Ltd. and other contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

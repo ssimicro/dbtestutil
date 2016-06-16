@@ -17,7 +17,7 @@ var options = nconf.argv().env().file({ file: path.join(__dirname, 'db.conf') })
 var dbTestUtil = new DbTestUtil(options.db.test);
 
 before(function (done) {
-    this.timeout(60 * 1000); // 60 seconds (max)
+    this.timeout(120 * 1000); // 120 seconds (max)
     dbTestUtil.startLocalMySql(path.join(__dirname, 'test_load.sql'), done);
 });
 
@@ -34,6 +34,6 @@ describe('DbTestUtil', function () {
 });
 
 after(function (done) {
-    this.timeout(60 * 1000); // 60 seconds (max)
+    this.timeout(120 * 1000); // 120 seconds (max)
     dbTestUtil.killLocalMySql(path.join(__dirname, 'test_dump.sql'), done);    
 });
