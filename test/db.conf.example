@@ -1,7 +1,7 @@
 {
 	"db": {
 		"test": {
-			"mysql_local_port": 3007,
+			"mysql_local_port": 3307,
 			"mysqld": "/usr/sbin/mysqld",
 			"mysql": "/usr/bin/mysql",
 			"mysql_base_dir": "/usr",

@@ -25,6 +25,7 @@ The `options` parameter can contain any of the following (defaults listed below)
 * `mysql_socket`: path to unix socket file
 * `mysqld`: path to `mysqld` binary
 * `mysql`: path to `mysql` binary
+* `mysqladmin`: path to `mysqladmin` binary
 * `mysql_tzinfo_to_sql`: path to `mysql_tzinfo_to_sql` binary
 * `mysql_base_dir`: MySQL's `basedir`
 * `mysql_data_dir`: where to put the databases on the file system
@@ -40,6 +41,7 @@ Here are the default values:
         "mysql_local_port": 3307,
         "mysql_socket": "/tmp/mysqltest.sock",
         "mysqld": "mysqld",
+        "mysqladmin": "mysqladmin",
         "mysql": "mysql",
         "mysql_tzinfo_to_sql": "mysql_tzinfo_to_sql",
         "mysql_base_dir": "/usr/local",

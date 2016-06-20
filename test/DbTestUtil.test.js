@@ -9,7 +9,7 @@ var log = require('ssi-logger');
 var DbTestUtil = require('../');
 
 // uncomment to display debug output
-// process.on('log', log.consoleTransport());
+process.on('log', log.consoleTransport());
 
 // load the database configuration.
 var options = nconf.argv().env().file({ file: path.join(__dirname, 'db.conf') }).get();
