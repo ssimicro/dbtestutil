@@ -124,7 +124,7 @@ module.exports = function DbTestUtil(options) {
 
         run([
             { command: fmtr('${mysqld} --initialize-insecure ' + mysqld_args + ' >  ${mysql_data_dir}/dbtestutil.out 2>&1', options) },   // install DB
-            { command: fmtr('${mysqld} --daemonize           ' + mysqld_args + ' >> ${mysql_data_dir}/dbtestutil.out 2>&1', options) },   // start mysqld
+            { command: fmtr('${mysqld} --daemonize           ' + mysqld_args + ' >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), daemon: true },   // start mysqld
             { command: fmtr('${mysql_tzinfo_to_sql}  ${zoneinfo_dir} | ${mysql} --socket=${mysql_socket} ${mysql_dash_u} mysql', options) },   // load timezones
             { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: options.sql_file === null }    // execute user supplied SQL
         ], callback);
