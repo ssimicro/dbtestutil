@@ -58,7 +58,7 @@ module.exports = function DbTestUtil(options) {
         p.on('exit', function (err) {
             process.removeListener('exit', down);
             setTimeout(function () {
-                if (err) {
+                if (err && cmd.failOk !== true) {
                     callback(err);
                     return;
                 }
@@ -130,9 +130,18 @@ module.exports = function DbTestUtil(options) {
 
         log('DEBUG', 'Stopping local MySQL Instance');
 
+        var pid;
+        try {
+            pid = fs.readFileSync(fmtr('${mysql_data_dir}/mysqld.pid', options)).toString().trim();
+        } catch (err) {
+            pid = undefined;
+        }
+
         run([
-            { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: options.sql_file === null },       // execute user supplied SQL
-            { command: fmtr('cat ${mysql_data_dir}/mysqld.pid | xargs kill >> ${mysql_data_dir}/dbtestutil.out 2>&1', options) }
+            { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: options.sql_file === null },         // execute user supplied SQL
+            { command: fmtr('${mysqladmin} --port=${mysql_local_port} --socket=${mysql_socket} ${mysql_dash_u} shutdown >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), failOk: true }, // try safe shutdown
+            { command: fmtr('kill -TERM ' + pid + ' >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: pid === undefined, failOk: true }, // ask it to go away nicely
+            { command: fmtr('kill -KILL ' + pid + ' >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: pid === undefined, failOk: true }  // force it to go away
         ], callback);
 
     };
