@@ -15,8 +15,6 @@ module.exports = function DbTestUtil(options) {
         return new DbTestUtil(options);
     }
 
-    var daemons = []; // daemon process list (used to kill them when killLocalMySql() is called)
-
     options = _.defaultsDeep({}, options, {
         mysql_local_port: 3307,                 // default for production is 3306
         mysqld: 'mysqld',
@@ -59,24 +57,14 @@ module.exports = function DbTestUtil(options) {
         process.on('exit', down);
         p.on('exit', function (err) {
             process.removeListener('exit', down);
-            if (!cmd.daemon) {
-                setTimeout(function () {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    run(cmds, callback);
-                }, 1000);
-            } else {
-                daemons = _.without(daemons, p);
-            }
-        });
-        if (cmd.daemon) {
-            daemons.push(p);
             setTimeout(function () {
+                if (err) {
+                    callback(err);
+                    return;
+                }
                 run(cmds, callback);
             }, options.mysql_settle_delay);
-        }
+        });
     }
 
     this.startLocalMySql = function startLocalMySql(sql_file, callback) {
@@ -144,15 +132,8 @@ module.exports = function DbTestUtil(options) {
 
         run([
             { command: fmtr('${mysql} --socket=${mysql_socket} ${mysql_dash_u} < ${sql_file} >> ${mysql_data_dir}/dbtestutil.out 2>&1', options), skip: options.sql_file === null },       // execute user supplied SQL
-            { command: fmtr('${mysqladmin} --port=${mysql_local_port} --socket=${mysql_socket} ${mysql_dash_u} shutdown >> ${mysql_data_dir}/dbtestutil.out 2>&1', options) }
-        ], function (err) {
-            _.forEach(daemons, function (daemon) {
-                log('DEBUG', 'Sending SIGTERM to pid=%s', daemon.pid);
-                daemon.kill('SIGTERM');
-            });
-            daemons = [];
-            callback(err);
-        });
+            { command: fmtr('cat ${mysql_data_dir}/mysqld.pid | xargs kill >> ${mysql_data_dir}/dbtestutil.out 2>&1', options) }
+        ], callback);
 
     };
 
