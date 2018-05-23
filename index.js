@@ -150,10 +150,11 @@ class DbTestUtil {
     }
 
     static makeDatabaseName(stem, suffix, separator) {
-        stem = stem || 'dbtestutil';
-        suffix = suffix || 'test';
-        separator = separator || '_';
-        return [ stem, uuid.v1().split('-')[0], suffix ].join(separator);
+        return [
+            stem || 'dbtestutil',
+            uuid.v1().split('-')[0],
+            suffix || 'test'
+        ].join(separator || '_');
     }
 }
 
