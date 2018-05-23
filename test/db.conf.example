@@ -1,11 +1,3 @@
 {
-	"db": {
-		"test": {
-			"mysql_local_port": 3307,
-			"mysqld": "/usr/sbin/mysqld",
-			"mysql": "/usr/bin/mysql",
-			"mysql_base_dir": "/usr",
-			"sql_file": "test.sql"
-		}
-	}
+    "host": "localhost"
 }

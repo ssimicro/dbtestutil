@@ -2,12 +2,12 @@
   "name": "dbtestutil",
   "version": "3.0.3",
   "description": "Launches an isolated instance of MySQL",
-  "main": "DbTestUtil.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "pretest": "jshint *.js ; cp -n test/db.conf.example test/db.conf || true",
+    "pretest": "jshint *.js; cp -n test/db.conf.example test/db.conf || true",
     "test": "mocha -R spec test/*.test.js"
   },
   "repository": {
@@ -21,20 +21,19 @@
   },
   "homepage": "https://github.com/ssimicro/dbtestutil",
   "dependencies": {
-    "fmtr": "^1.0.3",
-    "lodash": "^4.13.1",
-    "mkdirp": "^0.5.1",
-    "rimraf": "^2.5.2",
-    "ssi-logger": "^2.5.0"
+    "async": "^2.6.1",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.1",
+    "mysql": "^2.15.0",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "jshint": "^2.9.2",
-    "mocha": "^2.5.3",
-    "mysql": "^2.11.1",
-    "nconf": "^0.8.4"
+    "jshint": "^2.9.5",
+    "mocha": "^5.2.0"
   },
   "jshintConfig": {
+    "esversion": 6,
     "bitwise": true,
     "curly": true,
     "eqeqeq": true,
