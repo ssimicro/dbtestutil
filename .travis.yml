@@ -1,11 +1,6 @@
 language: node_js
 node_js:
  - "stable"
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - mysql-client
-    - mysql-server
+services:
+  - mysql
 sudo: false
