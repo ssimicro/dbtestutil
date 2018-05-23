@@ -27,7 +27,7 @@ class DbTestUtil {
             port: 3306,
             database: '',
             multipleStatements: true,
-            selfDestruct: 'P1W',
+            selfDestruct: 'PT6H',
         });
 
         async.waterfall([
