@@ -103,20 +103,30 @@ class DbTestUtil {
                 }
 
                 const conn = mysql.createConnection(connectionConfig);
-                conn.query('CREATE EVENT ?? ON SCHEDULE AT ? DO DROP DATABASE ??; SET GLOBAL event_scheduler = ON', [
-                    `${connectionConfig.database}_self_destruct`,
-                    moment().add(moment.duration(connectionConfig.selfDestruct)).toDate(),
-                    connectionConfig.database
-                ], (err) => {
+
+                async.eachSeries([{
+                    sql: 'CREATE EVENT ?? ON SCHEDULE AT ? DO DROP DATABASE ??',
+                    values: [
+                        `${connectionConfig.database}_self_destruct`,
+                        moment().add(moment.duration(connectionConfig.selfDestruct)).toDate(),
+                        connectionConfig.database,
+                    ],
+                }, {
+                    sql: 'SET GLOBAL event_scheduler = ON',
+                }], (query, callback) => {
+                    conn.query(query, (err) => {
+                        if (err) {
+                            const dbEventSetupError = new Error('could not create event to self destruct database');
+                            dbEventSetupError.name = 'DBTESTUTIL_DB_EVENT';
+                            dbEventSetupError.database = connectionConfig.database;
+                            dbEventSetupError.inner = err;
+                            return callback(dbEventSetupError);
+                        }
+                        callback();
+                    });
+                }, (err) => {
                     conn.end();
-                    if (err) {
-                        const dbEventSetupError = new Error('could not create event to self destruct database');
-                        dbEventSetupError.name = 'DBTESTUTIL_DB_EVENT';
-                        dbEventSetupError.database = connectionConfig.database;
-                        dbEventSetupError.inner = err;
-                        return callback(dbEventSetupError);
-                    }
-                    callback();
+                    callback(err);
                 });
             },
 
