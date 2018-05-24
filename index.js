@@ -6,6 +6,7 @@ const child_process = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
 const mysql = require('mysql');
+const path = require('path');
 const uuid = require('uuid');
 
 class DbTestUtil {
@@ -20,15 +21,31 @@ class DbTestUtil {
 
     createTestDb(connectionConfig, sqlFiles, callback) {
 
-        connectionConfig = _.defaultsDeep(connectionConfig, { // modifies connectionConfig
-            user: 'root',
-            password: '',
-            host: 'localhost',
-            port: 3306,
-            database: '',
-            multipleStatements: true,
-            selfDestruct: 'PT6H',
-        });
+        const readConfig = (filepath) => {
+            let json;
+            try {
+                json = fs.readFileSync(filepath).toString();
+            } catch (err) {
+                json = '{}'; // ignore file not found
+            }
+            return JSON.parse(json); // don't catch this error -- let the user see it.
+        };
+
+        connectionConfig = _.defaultsDeep(
+            connectionConfig,                                                                   // supplied config, modifies connectionConfig
+            readConfig(path.join(process.env.HOME || `${path.sep}/root`, '.dbtestutil.conf')),  // /home/jdoe/.dbtestutil.conf
+            readConfig(path.join(`${path.sep}usr`, 'local', 'etc', 'dbtestutil.conf')),         // /usr/local/etc/dbtestutil.conf
+            readConfig(path.join(`${path.sep}etc`, 'dbtestutil.conf')),                         // /etc/dbtestutil.conf
+            {                                                                                   // defaults
+                user: 'root',
+                password: '',
+                host: 'localhost',
+                port: 3306,
+                database: '',
+                multipleStatements: true,
+                selfDestruct: 'PT6H',
+            }
+        );
 
         async.waterfall([
 

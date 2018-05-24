@@ -29,6 +29,19 @@ The above conventions should keep you safe. This module tries to prevent databas
 * The module will refuse to perform if the database host appears in the `hostBlacklist` to avoid running tests on production database servers. As mentioned above, it is highly recommended that a `hostBlacklist` be provided.
 * The module will refuse to perform if the named database already exists to avoid clobbering an existing database.
 
+## Configuration
+
+There may be several developers working on several projects with utilize `dbtestutil`. Having each developer configure the database connection information
+in each project can get tedious. To save some effort, `dbtestutil` will look for common configuration in a few places:
+
+* `$HOME/.dbtestutil.conf`
+* `/usr/local/etc/dbtestutil.conf`
+* `/etc/dbtestutil.conf`
+
+Developers can put their connection settings (username, password, host, etc) in a file in one of those locations and have those
+settings used whereever `dbtestutil` is used. Those are JSON files containing any of the options applicable to the `connectionConfig`
+object passed to `createTestDb()`.
+
 ## API
 
 ### new DbTestUtil(options)
