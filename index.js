@@ -108,14 +108,25 @@ class DbTestUtil {
              */
             (callback) => {
                 async.eachSeries(sqlFiles, (sqlFile, callback) => {
+
                     const args = [
-                        '--host', connectionConfig.host,
-                        '--port', connectionConfig.port,
                         '--user', connectionConfig.user,
                     ];
+
+                    if (connectionConfig.socketPath) {          // when present, take priority over host/port config T3511
+                        args.push('--socket');
+                        args.push(connectionConfig.socketPath);
+                    } else {
+                        args.push('--host');
+                        args.push(connectionConfig.host);
+                        args.push('--port');
+                        args.push(connectionConfig.port);
+                    }
+
                     if (connectionConfig.password) {
                         args.push(`-p${connectionConfig.password}`);
                     }
+
                     args.push(connectionConfig.database);
 
                     const proc = child_process.spawn(this.options.mysql, args);

@@ -55,6 +55,7 @@ The `connectionConfig` parameter can contain any of the following (defaults list
 
 * `user`: a database username which corresponds to a user with database create and event create permissions.
 * `password`: the `user`'s password.
+* `socketPath`: socket file to use for connection. If set, the connection will happen via the socket and the `host` and `port` are ignored.
 * `host`: hostname of the database server. Must not appear in `hostBlacklist`.
 * `port`: TCP port for the database server.
 * `database`: name of the database to create. Must not already exist. Must have expected suffix (`databaseMustEndWith`).
