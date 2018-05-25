@@ -53,6 +53,8 @@ The `options` parameter can contain any of the following (defaults listed below)
 * `mysql`: name of `mysql` binary or path to `mysql` binary
 * `databaseMustEndWith`: a suffix to look for so that we know for sure we didn't accidentally pass a production database name to this module.
 * `hostBlacklist`: a list of hosts which are disallowed. Include all production database hostnames and IPs in here so that we don't accidentally point this module at the production database server.
+* `charset`: the database's default character set.
+* `collate`: the database's default collation table.
 
 Here are the default values:
 
@@ -60,6 +62,8 @@ Here are the default values:
         "mysql": "mysql",
         "databaseMustEndWith": "_test",
         "hostBlacklist": [],
+        "charset": "utf8mb4",
+        "collate": "utf8mb4_unicode_520_ci",
     }
 
 ### createTestDb(connectionConfig, sqlFiles, callback)

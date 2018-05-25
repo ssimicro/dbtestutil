@@ -16,7 +16,9 @@ class DbTestUtil {
             mysql: 'mysql',
             databaseMustEndWith: '_test',
             hostBlacklist: [],
-        });
+            charset: "utf8mb4",
+            collate: "utf8mb4_unicode_520_ci",
+       });
     }
 
     createTestDb(connectionConfig, sqlFiles, callback) {
@@ -81,7 +83,7 @@ class DbTestUtil {
             (callback) => {
 
                 const conn = mysql.createConnection(_.omit(connectionConfig, ['database']));
-                conn.query('CREATE DATABASE ??;', [ connectionConfig.database ], (err, result) => {
+                conn.query('CREATE DATABASE ?? CHARACTER SET ?? COLLATE ??;', [ connectionConfig.database, this.options.charset, this.options.collate ], (err, result) => {
                     conn.end();
                     if (err) {
                         const dbCreateError = new Error('could not create database');
