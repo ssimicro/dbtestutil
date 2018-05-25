@@ -46,6 +46,7 @@ class DbTestUtil {
                 database: '',
                 multipleStatements: true,
                 selfDestruct: 'PT6H',
+                charset: this.options.collate, // mysqljs accpets either SQL-level "charset" or "collation" here. Pass collate as it's more specific.
             }
         );
 
@@ -139,6 +140,7 @@ class DbTestUtil {
                 async.eachSeries(sqlFiles, (sqlFile, callback) => {
 
                     const args = [
+                        `--default-character-set=${this.options.charset}`,
                         '--user', connectionConfig.user,
                     ];
 
