@@ -31,7 +31,7 @@ The above conventions should keep you safe. This module tries to prevent databas
 
 ## Configuration
 
-There may be several developers working on several projects with utilize `dbtestutil`. Having each developer configure the database connection information
+There may be several developers working on several projects that utilize `dbtestutil`. Having each developer configure the database connection information
 in each project can get tedious. To save some effort, `dbtestutil` will look for common configuration in a few places:
 
 * `$HOME/.dbtestutil.conf`
