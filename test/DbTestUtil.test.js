@@ -107,7 +107,7 @@ describe('DbTestUtil', function () {
                     if (err) {
                         done(err);
                     }
-                    expect(result).to.eql([{ message: 'Bonjour' }, { message: 'Hello' }]);
+                    expect(result).to.eql([{ message: 'Bonjour 🎃🛠😀' }, { message: 'Hello' }]);
                     done();
                 });
             });

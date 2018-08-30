@@ -6,6 +6,7 @@ const child_process = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
 const mysql = require('mysql');
+const path = require('path');
 const uuid = require('uuid');
 
 class DbTestUtil {
@@ -15,20 +16,39 @@ class DbTestUtil {
             mysql: 'mysql',
             databaseMustEndWith: '_test',
             hostBlacklist: [],
-        });
+            charset: "utf8mb4",
+            collate: "utf8mb4_unicode_520_ci",
+       });
     }
 
     createTestDb(connectionConfig, sqlFiles, callback) {
 
-        connectionConfig = _.defaultsDeep(connectionConfig, { // modifies connectionConfig
-            user: 'root',
-            password: '',
-            host: 'localhost',
-            port: 3306,
-            database: '',
-            multipleStatements: true,
-            selfDestruct: 'PT6H',
-        });
+        const readConfig = (filepath) => {
+            let json;
+            try {
+                json = fs.readFileSync(filepath).toString();
+            } catch (err) {
+                json = '{}'; // ignore file not found
+            }
+            return JSON.parse(json); // don't catch this error -- let the user see it.
+        };
+
+        connectionConfig = _.defaultsDeep(
+            connectionConfig,                                                                   // supplied config, modifies connectionConfig
+            readConfig(path.join(process.env.HOME || `${path.sep}/root`, '.dbtestutil.conf')),  // /home/jdoe/.dbtestutil.conf
+            readConfig(path.join(`${path.sep}usr`, 'local', 'etc', 'dbtestutil.conf')),         // /usr/local/etc/dbtestutil.conf
+            readConfig(path.join(`${path.sep}etc`, 'dbtestutil.conf')),                         // /etc/dbtestutil.conf
+            {                                                                                   // defaults
+                user: 'root',
+                password: '',
+                host: 'localhost',
+                port: 3306,
+                database: '',
+                multipleStatements: true,
+                selfDestruct: 'PT6H',
+                charset: this.options.collate, // mysqljs accpets either SQL-level "charset" or "collation" here. Pass collate as it's more specific.
+            }
+        );
 
         async.waterfall([
 
@@ -64,7 +84,7 @@ class DbTestUtil {
             (callback) => {
 
                 const conn = mysql.createConnection(_.omit(connectionConfig, ['database']));
-                conn.query('CREATE DATABASE ??;', [ connectionConfig.database ], (err, result) => {
+                conn.query('CREATE DATABASE ?? CHARACTER SET ?? COLLATE ??;', [ connectionConfig.database, this.options.charset, this.options.collate ], (err, result) => {
                     conn.end();
                     if (err) {
                         const dbCreateError = new Error('could not create database');
@@ -86,20 +106,30 @@ class DbTestUtil {
                 }
 
                 const conn = mysql.createConnection(connectionConfig);
-                conn.query('CREATE EVENT ?? ON SCHEDULE AT ? DO DROP DATABASE ??; SET GLOBAL event_scheduler = ON', [
-                    `${connectionConfig.database}_self_destruct`,
-                    moment().add(moment.duration(connectionConfig.selfDestruct)).toDate(),
-                    connectionConfig.database
-                ], (err) => {
+
+                async.eachSeries([{
+                    sql: 'CREATE EVENT ?? ON SCHEDULE AT ? DO DROP DATABASE ??',
+                    values: [
+                        `${connectionConfig.database}_self_destruct`,
+                        moment().add(moment.duration(connectionConfig.selfDestruct)).toDate(),
+                        connectionConfig.database,
+                    ],
+                }, {
+                    sql: 'SET GLOBAL event_scheduler = ON',
+                }], (query, callback) => {
+                    conn.query(query, (err) => {
+                        if (err) {
+                            const dbEventSetupError = new Error('could not create event to self destruct database');
+                            dbEventSetupError.name = 'DBTESTUTIL_DB_EVENT';
+                            dbEventSetupError.database = connectionConfig.database;
+                            dbEventSetupError.inner = err;
+                            return callback(dbEventSetupError);
+                        }
+                        callback();
+                    });
+                }, (err) => {
                     conn.end();
-                    if (err) {
-                        const dbEventSetupError = new Error('could not create event to self destruct database');
-                        dbEventSetupError.name = 'DBTESTUTIL_DB_EVENT';
-                        dbEventSetupError.database = connectionConfig.database;
-                        dbEventSetupError.inner = err;
-                        return callback(dbEventSetupError);
-                    }
-                    callback();
+                    callback(err);
                 });
             },
 
@@ -108,14 +138,26 @@ class DbTestUtil {
              */
             (callback) => {
                 async.eachSeries(sqlFiles, (sqlFile, callback) => {
+
                     const args = [
-                        '--host', connectionConfig.host,
-                        '--port', connectionConfig.port,
+                        `--default-character-set=${this.options.charset}`,
                         '--user', connectionConfig.user,
                     ];
+
+                    if (connectionConfig.socketPath) {          // when present, take priority over host/port config T3511
+                        args.push('--socket');
+                        args.push(connectionConfig.socketPath);
+                    } else {
+                        args.push('--host');
+                        args.push(connectionConfig.host);
+                        args.push('--port');
+                        args.push(connectionConfig.port);
+                    }
+
                     if (connectionConfig.password) {
                         args.push(`-p${connectionConfig.password}`);
                     }
+
                     args.push(connectionConfig.database);
 
                     const proc = child_process.spawn(this.options.mysql, args);

@@ -29,6 +29,19 @@ The above conventions should keep you safe. This module tries to prevent databas
 * The module will refuse to perform if the database host appears in the `hostBlacklist` to avoid running tests on production database servers. As mentioned above, it is highly recommended that a `hostBlacklist` be provided.
 * The module will refuse to perform if the named database already exists to avoid clobbering an existing database.
 
+## Configuration
+
+There may be several developers working on several projects with utilize `dbtestutil`. Having each developer configure the database connection information
+in each project can get tedious. To save some effort, `dbtestutil` will look for common configuration in a few places:
+
+* `$HOME/.dbtestutil.conf`
+* `/usr/local/etc/dbtestutil.conf`
+* `/etc/dbtestutil.conf`
+
+Developers can put their connection settings (username, password, host, etc) in a file in one of those locations and have those
+settings used whereever `dbtestutil` is used. Those are JSON files containing any of the options applicable to the `connectionConfig`
+object passed to `createTestDb()`.
+
 ## API
 
 ### new DbTestUtil(options)
@@ -40,6 +53,8 @@ The `options` parameter can contain any of the following (defaults listed below)
 * `mysql`: name of `mysql` binary or path to `mysql` binary
 * `databaseMustEndWith`: a suffix to look for so that we know for sure we didn't accidentally pass a production database name to this module.
 * `hostBlacklist`: a list of hosts which are disallowed. Include all production database hostnames and IPs in here so that we don't accidentally point this module at the production database server.
+* `charset`: the database's default character set.
+* `collate`: the database's default collation table.
 
 Here are the default values:
 
@@ -47,6 +62,8 @@ Here are the default values:
         "mysql": "mysql",
         "databaseMustEndWith": "_test",
         "hostBlacklist": [],
+        "charset": "utf8mb4",
+        "collate": "utf8mb4_unicode_520_ci",
     }
 
 ### createTestDb(connectionConfig, sqlFiles, callback)
@@ -55,6 +72,7 @@ The `connectionConfig` parameter can contain any of the following (defaults list
 
 * `user`: a database username which corresponds to a user with database create and event create permissions.
 * `password`: the `user`'s password.
+* `socketPath`: socket file to use for connection. If set, the connection will happen via the socket and the `host` and `port` are ignored.
 * `host`: hostname of the database server. Must not appear in `hostBlacklist`.
 * `port`: TCP port for the database server.
 * `database`: name of the database to create. Must not already exist. Must have expected suffix (`databaseMustEndWith`).
