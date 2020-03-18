@@ -98,6 +98,7 @@ The `callback` function accepts `(err)` which is either `null`/`undefined` OR an
 * `DBTESTUTIL_DB_CREATE` - if there is a problem creating the database (auth/autz error, duplicate, etc).
 * `DBTESTUTIL_EVENT_CREATE` - if there is a problem creating the self-destruct event.
 * `DBTESTUTIL_MYSQL_CMD` - if there is a problem loading the SQL file(s).
+* `DBTESTUTIL_PRODUCTION_ENVIRONMENT` - if the NODE_ENV environment variable is set to production; You probably don't want to run dbtestutil in that case.
 
 ### static makeDatabaseName(stem, suffix = "test", separator = "_")
 
