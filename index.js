@@ -74,7 +74,13 @@ class DbTestUtil {
                     hostBlacklistedError.hostBlacklist = this.options.hostBlacklist;
                     return callback(hostBlacklistedError);
                 }
-
+                // The test suite should not allow itself to run in a production environment.
+                if (process.env.NODE_ENV === 'production') {
+                    const productionEnvironmentError = new Error('this seems to be a production environment');
+                    productionEnvironmentError.name = 'DBTESTUTIL_PRODUCTION_ENVIRONMENT';
+                    productionEnvironmentError.node_env = process.env.NODE_ENV;
+                    return callback(productionEnvironmentError);
+                }
                 callback();
             },
 

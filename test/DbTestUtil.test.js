@@ -41,6 +41,23 @@ describe('DbTestUtil', function () {
 
         });
 
+        it ('should callback with DBTESTUTIL_PRODUCTION_ENVIRONMENT in a production environment', function (done) {
+
+            const originalNodeEnv = _.get(process.env, 'NODE_ENV', 'test');
+
+            process.env.NODE_ENV = 'production';
+            const dbTestUtil = new DbTestUtil();
+            const connectionConfig = _.defaultsDeep({}, conf, {
+                database: DbTestUtil.makeDatabaseName('dbtestutil'),
+            });
+            dbTestUtil.createTestDb(connectionConfig, [ path.join(__dirname, 'schema.sql'), path.join(__dirname, 'corpus.sql') ], (err) => {
+                expect(err).to.be.an(Error);
+                expect(err.name).to.be('DBTESTUTIL_PRODUCTION_ENVIRONMENT');
+                process.env.NODE_ENV = originalNodeEnv;
+                done();
+            });
+        });
+
         it('should callback with DBTESTUTIL_HOST_BLACKLISTED if host is blacklisted', function (done) {
 
             const dbTestUtil = new DbTestUtil({
