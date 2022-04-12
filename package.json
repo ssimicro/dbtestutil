@@ -1,6 +1,6 @@
 {
   "name": "dbtestutil",
-  "version": "4.2.5",
+  "version": "4.2.6",
   "description": "Launches an isolated instance of MySQL",
   "main": "index.js",
   "directories": {
