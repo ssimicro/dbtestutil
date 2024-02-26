@@ -8,6 +8,7 @@ const moment = require('moment');
 const mysql = require('mysql');
 const path = require('path');
 const uuid = require('uuid');
+const log = require('ssi-logger');
 
 class DbTestUtil {
 
@@ -18,7 +19,22 @@ class DbTestUtil {
             hostBlacklist: [],
             charset: "utf8mb4",
             collate: "utf8mb4_unicode_520_ci",
-       });
+            logger: {
+                transports: {
+                    syslog: {
+                        facility: "LOG_LOCAL5", 
+                        level: "DEBUG",
+                        enable: (process.env.DEBUG === 'DbTestUtil' || process.env.DEBUG === '*'),
+                    },
+                    console: {
+                        facility: "LOG_LOCAL5", 
+                        level: "DEBUG",
+                        enable: (process.env.DEBUG === 'DbTestUtil' || process.env.DEBUG === '*'),
+                    }
+                }
+            }
+        });
+        log.open(this.options.logger.transports);
     }
 
     createTestDb(connectionConfig, sqlFiles, callback) {
@@ -47,6 +63,7 @@ class DbTestUtil {
                 multipleStatements: true,
                 selfDestruct: 'PT6H',
                 charset: this.options.collate, // mysqljs accpets either SQL-level "charset" or "collation" here. Pass collate as it's more specific.
+                timezone: '-08:00', // default to EST
             }
         );
 
@@ -88,7 +105,6 @@ class DbTestUtil {
              * Create the database
              */
             (callback) => {
-
                 const conn = mysql.createConnection(_.omit(connectionConfig, ['database']));
                 conn.query('CREATE DATABASE ?? CHARACTER SET ?? COLLATE ??;', [ connectionConfig.database, this.options.charset, this.options.collate ], (err, result) => {
                     conn.end();
@@ -98,7 +114,7 @@ class DbTestUtil {
                         dbCreateError.inner = err;
                         return callback(dbCreateError);
                     }
-
+                    log.debug('DBTESTUTIL db created', { database: connectionConfig.database, port: connectionConfig.port, host: connectionConfig.host });
                     callback();
                 });
             },
@@ -112,12 +128,12 @@ class DbTestUtil {
                 }
 
                 const conn = mysql.createConnection(connectionConfig);
-
+                const timeMinusSelfDestruct = moment.duration(connectionConfig.selfDestruct).asMinutes();
                 async.eachSeries([{
-                    sql: 'CREATE EVENT ?? ON SCHEDULE AT ? DO DROP DATABASE ??',
+                    sql: 'CREATE EVENT ?? ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL ? MINUTE DO DROP DATABASE ??',
                     values: [
                         `${connectionConfig.database}_self_destruct`,
-                        moment().add(moment.duration(connectionConfig.selfDestruct)).toDate(),
+                        timeMinusSelfDestruct,
                         connectionConfig.database,
                     ],
                 }, {
@@ -131,6 +147,15 @@ class DbTestUtil {
                             dbEventSetupError.inner = err;
                             return callback(dbEventSetupError);
                         }
+                        if (query.sql.startsWith('CREATE EVENT')) {
+                            log.debug('DBTESTUTIL db self destruct added', { 
+                                database: connectionConfig.database, 
+                                port: connectionConfig.port, 
+                                host: connectionConfig.host, 
+                                selfDestruct: connectionConfig.selfDestruct, 
+                                timeMinusSelfDestruct: timeMinusSelfDestruct + ' minutes'
+                            });
+                        }
                         callback();
                     });
                 }, (err) => {
@@ -139,6 +164,37 @@ class DbTestUtil {
                 });
             },
 
+            /*
+             * Set timezone -- do this *before* schema load & self destruct so that if there is a load issue, the database still gets cleaned up.
+             */
+            (callback) => {
+                if (!_.isString(connectionConfig.timezone)) { // skip
+                    return callback();
+                }
+
+                const conn = mysql.createConnection(connectionConfig);
+                conn.query("SET time_zone = ?;", [connectionConfig.timezone], (err) => {
+                    conn.end();
+                    if (err) {
+                        const dbEventSetupError = new Error('could not set timezone on database');
+                        dbEventSetupError.name = 'DBTESTUTIL_DB_EVENT';
+                        dbEventSetupError.database = connectionConfig.database;
+                        dbEventSetupError.inner = err;
+                        return callback(dbEventSetupError);
+                    }
+                    
+                    log.debug('DBTESTUTIL db timezone set', { 
+                        database: connectionConfig.database, 
+                        port: connectionConfig.port, 
+                        host: connectionConfig.host, 
+                        timezone: connectionConfig.timezone
+                    });
+                    callback();
+                }, (err) => {
+                    conn.end();
+                    callback(err);
+                });
+            },
             /*
              * Load SQL File(s)
              */
@@ -173,7 +229,6 @@ class DbTestUtil {
 
                     let stderr = '';
                     proc.stderr.on('data', (data) => stdout += data);
-
                     proc.on('close', (code) => {
                         if (code !== 0) {
                             const mysqlCommandError = new Error('problem executing mysql command');
@@ -185,6 +240,13 @@ class DbTestUtil {
                             mysqlCommandError.args = args;
                             return callback(mysqlCommandError);
                         }
+                        log.debug('DBTESTUTIL sql file loaded', { 
+                            database: connectionConfig.database, 
+                            port: connectionConfig.port, 
+                            host: connectionConfig.host, 
+                            socketPath: connectionConfig.socketPath, 
+                            sqlFile: sqlFile 
+                        });
                         callback();
                     });
 
@@ -192,7 +254,6 @@ class DbTestUtil {
 
                 }, callback);
             },
-
 
         ], callback);
     }
