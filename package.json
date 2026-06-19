@@ -8,7 +8,7 @@
   },
   "scripts": {
     "requirelint": "require-case-linter .",
-    "pretest": "npm run prepare && jshint *.js; cp -n test/db.conf.example test/db.conf || true",
+    "pretest": "npm run requirelint && jshint *.js; cp -n test/db.conf.example test/db.conf || true",
     "test": "mocha -R spec test/*.test.js"
   },
   "repository": {
